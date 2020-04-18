@@ -7,9 +7,10 @@ from flask_migrate import Migrate
 # from flask_socketio import SocketIO, send
 
 app = Flask(__name__)
-SECRET_KEY = os.getenv("SECRET_KEY", "secret123!@#")
+SECRET_KEY = os.getenv("SECRET_KEY", "secret123!")
+SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///app.db")
 app.config["SECRET_KEY"] = SECRET_KEY
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # socketio = SocketIO(app)
 db = SQLAlchemy(app)
