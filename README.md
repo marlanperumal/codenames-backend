@@ -29,7 +29,13 @@ You must have these installed before running
     poetry run flask db upgrade head
     ```
 
-4. Run the development server
+4. Populate the database with some words
+
+    ```bash
+    poetry run python populate_tables.py
+    ```
+
+5. Run the development server
 
     ```bash
     poetry run flask run

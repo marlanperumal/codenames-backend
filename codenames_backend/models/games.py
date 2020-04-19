@@ -12,7 +12,7 @@ GAME_ID_CHARACTERS = 6
 
 
 def generate_id():
-    return ''.join(choices(ascii_uppercase + digits, k=GAME_ID_CHARACTERS))
+    return "".join(choices(ascii_uppercase + digits, k=GAME_ID_CHARACTERS))
 
 
 class Game(db.Model):
@@ -34,11 +34,7 @@ class Game(db.Model):
 
         words = Word.query.order_by(func.random()).limit(CARDS_PER_GAME)
         for word, team in zip(words, teams):
-            card = Card(
-                word=word.word,
-                team=team,
-                game=self
-            )
+            card = Card(word=word.word, team=team, game=self)
             db.session.add(card)
 
 
