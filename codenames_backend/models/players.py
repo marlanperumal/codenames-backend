@@ -5,7 +5,6 @@ class Player(db.Model):
     __tablename__ = "player"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
-    captain = db.Column(db.Boolean, default=False)
     team = db.Column(db.String(50))
     game_id = db.Column(db.String(50), db.ForeignKey("game.id"), index=True)
 

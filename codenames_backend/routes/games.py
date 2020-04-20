@@ -4,6 +4,7 @@ from ..models.cards import Card, cards_schema
 from ..models.games import Game, games_schema, game_schema
 from ..models.players import Player
 
+from sqlalchemy import func, sql
 from sqlalchemy.orm.exc import *
 
 api = Blueprint("games", __name__)
@@ -28,6 +29,23 @@ def new_game():
     db.session.commit()
     return game_schema.jsonify(game), 201
 
+def get_smallest_team(game_id):
+    teams = (
+        db.session.query(Player.team, func.count(Player.team))
+            .filter(Player.game_id == game_id)
+            .group_by(Player.team)
+            .order_by(func.count(Player.team))
+            .all()
+    )
+
+    if len(teams) == 1:
+        if teams[0][0] == "blue":
+            return "red"
+        else:
+            return "blue"
+    else:
+        return teams[0][0]
+
 
 @api.route("/join", methods=["POST"])
 def new_game_with_user():
@@ -45,9 +63,12 @@ def new_game_with_user():
         player.name = player_name
         player.game_id = game.id
         player.team = "blue"
-        player.captain = True
+        
         db.session.add(game)
         db.session.add(player)
+        db.session.commit()
+        
+        game.blue_captain_id = player.id        
         db.session.commit()
 
     else:
@@ -68,12 +89,24 @@ def new_game_with_user():
                 .one()
             )
         except NoResultFound:
-            current_app.logger.info("Adding player {} to game {}".format(player_name, game.id))
+            team = get_smallest_team(game.id)
+
             player = Player()
             player.name = player_name
             player.game_id = game.id
-            player.team = "blue"
+            player.team = team
             db.session.add(player)
+            
+            if team == "blue":
+                if game.blue_captain_id is None:
+                    game.blue_captain_id = player.id
+                    current_app.logger.info("Adding blue captain {}".format(game.blue_captain_id))
+            elif team == "red":
+                if game.red_captain_id is None:
+                    game.red_captain_id = player.id
+                    current_app.logger.info("Adding red captain {}".format(game.red_captain_id))
+            
+            current_app.logger.info("Adding player {} to game {} on team {}".format(player_name, game.id, team))
             db.session.commit()
     
     return { 
