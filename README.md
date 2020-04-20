@@ -40,3 +40,12 @@ You must have these installed before running
     ```bash
     poetry run flask run
     ```
+
+6. If using VS Code, do the following to use the right virtual environment
+
+    ```bash
+    poetry shell
+    code .
+    ```
+
+    Then select the correct virtual environment with the `Python: Select Interpreter` command
