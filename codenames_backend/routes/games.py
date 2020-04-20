@@ -96,15 +96,16 @@ def new_game_with_user():
             player.game_id = game.id
             player.team = team
             db.session.add(player)
+            db.session.commit()
             
             if team == "blue":
                 if game.blue_captain_id is None:
                     game.blue_captain_id = player.id
-                    current_app.logger.info("Adding blue captain {}".format(game.blue_captain_id))
+                    current_app.logger.info("Adding blue captain {}".format(player.id))
             elif team == "red":
                 if game.red_captain_id is None:
                     game.red_captain_id = player.id
-                    current_app.logger.info("Adding red captain {}".format(game.red_captain_id))
+                    current_app.logger.info("Adding red captain {}".format(player.id))
             
             current_app.logger.info("Adding player {} to game {} on team {}".format(player_name, game.id, team))
             db.session.commit()
