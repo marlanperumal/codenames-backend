@@ -18,6 +18,8 @@ def generate_id():
 class Game(db.Model):
     __tablename__ = "game"
     id = db.Column(db.String(20), primary_key=True)
+    blue_captain_id = db.Column(db.Integer, db.ForeignKey("player.id"), index=True)
+    red_captain_id = db.Column(db.Integer, db.ForeignKey("player.id"), index=True)
 
     cards = db.relationship("Card", backref="game", cascade="all, delete")
 
