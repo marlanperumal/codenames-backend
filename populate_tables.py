@@ -1,8 +1,11 @@
 import os
+from dotenv import load_dotenv
 
 from codenames_backend import create_app
 from codenames_backend.models import db
 from codenames_backend.models.words import Word
+
+load_dotenv()
 
 
 class Config:
