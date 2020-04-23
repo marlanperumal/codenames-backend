@@ -16,7 +16,7 @@ def create_app(config):
     db.init_app(app)
     ma.init_app(app)
     migrate.init_app(app, db)
-    socketio.init_app(app, cors_allowed_origin="*", logger=True)
+    socketio.init_app(app, cors_allowed_origins="*", logger=True)
     app.register_blueprint(cards_api, url_prefix="/api/cards")
     app.register_blueprint(words_api, url_prefix="/api/words")
     app.register_blueprint(games_api, url_prefix="/api/games")
