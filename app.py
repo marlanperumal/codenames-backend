@@ -1,8 +1,10 @@
 import os
-
+from dotenv import load_dotenv
 
 from codenames_backend import create_app
 from codenames_backend.routes.sockets import socketio
+
+load_dotenv()
 
 
 class Config:
