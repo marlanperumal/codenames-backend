@@ -4,3 +4,4 @@ __pycache__/
 instance/
 *.egg-info/
 app.db
+*.pyc
