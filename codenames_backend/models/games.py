@@ -1,9 +1,9 @@
-from random import choices, choice, shuffle
-from string import ascii_uppercase, digits
+from random import choice, shuffle
 
 from sqlalchemy import func
 
 from . import db, ma
+from ..methods.utility import generate_id
 from .cards import Card
 from .words import Word
 
@@ -11,20 +11,25 @@ CARDS_PER_GAME = 25
 GAME_ID_CHARACTERS = 6
 
 
-def generate_id():
-    return "".join(choices(ascii_uppercase + digits, k=GAME_ID_CHARACTERS))
-
-
 class Game(db.Model):
     __tablename__ = "game"
     id = db.Column(db.String(20), primary_key=True)
+    red_spymaster_id = db.Column(db.String(50), db.ForeignKey("player.id"), index=True)
+    blue_spymaster_id = db.Column(db.String(50), db.ForeignKey("player.id"), index=True)
+    # room_id = db.Column(db.String(20), db.ForeignKey("room.id"), index=True)
+    ready = db.Column(db.Boolean, default=False)
+    active = db.Column(db.Boolean, default=True)
+    complete = db.Column(db.Boolean, default=False)
 
+    # room = db.relationship("Room", backref="games")
+    # red_spymaster = db.relationship("Player", foreign_keys=[red_spymaster_id])
+    # blue_spymaster = db.relationship("Player", foreign_keys=[blue_spymaster_id])
     cards = db.relationship("Card", backref="game", cascade="all, delete")
 
     def __init__(self):
         game_id = None
         while game_id is None or Game.query.get(game_id) is not None:
-            game_id = generate_id()
+            game_id = generate_id(GAME_ID_CHARACTERS)
 
         self.id = game_id
 

@@ -20,3 +20,5 @@ migrate = Migrate()
 from .cards import Card  # noqa: F401
 from .games import Game  # noqa: F401
 from .words import Word  # noqa: F401
+from .rooms import Room  # noqa: F401
+from .players import Player  # noqa: F401
