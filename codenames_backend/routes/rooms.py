@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, abort
 from ..models import db
 from ..models.rooms import Room, rooms_schema, room_schema
 
@@ -11,6 +11,14 @@ def get_rooms():
     return rooms_schema.jsonify(rooms)
 
 
+@api.route("/<string:id>", methods=["GET"])
+def get_room(id):
+    room = Room.query.get(id)
+    if not room:
+        abort(404, description="Room Code does not exist")
+    return room_schema.jsonify(room)
+
+
 @api.route("", methods=["POST"])
 def new_room():
     room = Room()
@@ -19,7 +27,7 @@ def new_room():
     return room_schema.jsonify(room), 201
 
 
-@api.route("/<int:id>", methods=["PATCH", "PUT"])
+@api.route("/<string:id>", methods=["PATCH", "PUT"])
 def update_room(id):
     room = Room.query.get(id)
     data = request.get_json()
@@ -30,7 +38,7 @@ def update_room(id):
     return room_schema.jsonify(room)
 
 
-@api.route("/<int:id>", methods=["DELETE"])
+@api.route("/<string:id>", methods=["DELETE"])
 def delete_room(id):
     room = Room.query.get(id)
     db.session.delete(room)

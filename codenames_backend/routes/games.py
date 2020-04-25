@@ -26,7 +26,7 @@ def new_game():
     return game_schema.jsonify(game), 201
 
 
-@api.route("/<int:id>", methods=["PATCH", "PUT"])
+@api.route("/<string:id>", methods=["PATCH", "PUT"])
 def update_game(id):
     game = Game.query.get(id)
     data = request.get_json()
@@ -37,7 +37,7 @@ def update_game(id):
     return game_schema.jsonify(game)
 
 
-@api.route("/<int:id>", methods=["DELETE"])
+@api.route("/<string:id>", methods=["DELETE"])
 def delete_game(id):
     game = Game.query.get(id)
     db.session.delete(game)

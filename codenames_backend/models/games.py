@@ -14,16 +14,10 @@ GAME_ID_CHARACTERS = 6
 class Game(db.Model):
     __tablename__ = "game"
     id = db.Column(db.String(20), primary_key=True)
-    red_spymaster_id = db.Column(db.String(50), db.ForeignKey("player.id"), index=True)
-    blue_spymaster_id = db.Column(db.String(50), db.ForeignKey("player.id"), index=True)
-    # room_id = db.Column(db.String(20), db.ForeignKey("room.id"), index=True)
     ready = db.Column(db.Boolean, default=False)
     active = db.Column(db.Boolean, default=True)
     complete = db.Column(db.Boolean, default=False)
 
-    # room = db.relationship("Room", backref="games")
-    # red_spymaster = db.relationship("Player", foreign_keys=[red_spymaster_id])
-    # blue_spymaster = db.relationship("Player", foreign_keys=[blue_spymaster_id])
     cards = db.relationship("Card", backref="game", cascade="all, delete")
 
     def __init__(self):
@@ -33,8 +27,8 @@ class Game(db.Model):
 
         self.id = game_id
 
-        teams = (["blue"] * 8) + (["red"] * 8) + (["neutral"] * 7) + ["death"]
-        teams += [choice(["blue", "red"])]
+        teams = (["BLUE"] * 8) + (["RED"] * 8) + (["NEUTRAL"] * 7) + ["DEATH"]
+        teams += [choice(["BLUE", "RED"])]
         shuffle(teams)
 
         words = Word.query.order_by(func.random()).limit(CARDS_PER_GAME)
