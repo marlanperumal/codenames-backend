@@ -41,11 +41,12 @@ def on_join(data):
     room_id = data.get("room")
     room = Room.query.get(room_id)
     name = data.get("name")
+    team = data.get("team")
 
     join_room(room_id)
     player.current_room = room
     player.name = name
-    player.team = "NEUTRAL"
+    player.team = team
     game = room.current_game
     cards = Card.query.filter_by(game=game).order_by("id").all()
     response = cards_schema.dump(cards)
@@ -62,13 +63,15 @@ def on_leave(data):
     room = data["room"]
     player = Player.query.get(request.sid)
     leave_room(room)
+    old_team = player.current_team
     player.current_room = None
+    player.current_team = "NEUTRAL"
     db.session.commit()
     if player.is_spymaster:
         member_status = "spymaster"
     else:
         member_status = "player"
-    message = f"{player.current_team.upper()} {member_status} {player.name} has left the room"
+    message = f"{old_team.upper()} {member_status} {player.name} has left the room"
     print(message)
     send(message, room=room)
     db.session.remove()
@@ -78,13 +81,15 @@ def on_leave(data):
 def on_select_card(data):
     player = Player.query.get(request.sid)
     room = player.current_room
+    game = room.current_game
     card_id = data["card"]
     card = Card.query.get(card_id)
     if not card.selected:
         card.selected = True
         db.session.commit()
-        response = card_schema.dump(card)
-        emit("card", response, room=room.id)
+        cards = Card.query.filter_by(game=game).order_by("id").all()
+        response = cards_schema.dump(cards)
+        emit("cards", response, room=room.id)
         message = f"{player.name} picked {card.word.upper()}"
         print(message)
         send(message, room=room.id)
