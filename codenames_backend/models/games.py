@@ -1,9 +1,9 @@
-from random import choices, choice, shuffle
-from string import ascii_uppercase, digits
+from random import choice, shuffle
 
 from sqlalchemy import func
 
 from . import db, ma
+from ..methods.utility import generate_id
 from .cards import Card
 from .words import Word
 
@@ -11,25 +11,24 @@ CARDS_PER_GAME = 25
 GAME_ID_CHARACTERS = 6
 
 
-def generate_id():
-    return "".join(choices(ascii_uppercase + digits, k=GAME_ID_CHARACTERS))
-
-
 class Game(db.Model):
     __tablename__ = "game"
     id = db.Column(db.String(20), primary_key=True)
+    ready = db.Column(db.Boolean, default=False)
+    active = db.Column(db.Boolean, default=True)
+    complete = db.Column(db.Boolean, default=False)
 
     cards = db.relationship("Card", backref="game", cascade="all, delete")
 
     def __init__(self):
         game_id = None
         while game_id is None or Game.query.get(game_id) is not None:
-            game_id = generate_id()
+            game_id = generate_id(GAME_ID_CHARACTERS)
 
         self.id = game_id
 
-        teams = (["blue"] * 8) + (["red"] * 8) + (["neutral"] * 7) + ["death"]
-        teams += [choice(["blue", "red"])]
+        teams = (["BLUE"] * 8) + (["RED"] * 8) + (["NEUTRAL"] * 7) + ["DEATH"]
+        teams += [choice(["BLUE", "RED"])]
         shuffle(teams)
 
         words = Word.query.order_by(func.random()).limit(CARDS_PER_GAME)
