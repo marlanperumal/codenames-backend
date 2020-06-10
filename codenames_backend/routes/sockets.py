@@ -128,6 +128,11 @@ def on_new_game(data):
     print(message)
     send(message, room=room.id)
 
+    players = Player.query.filter_by(
+        current_room=room, active=True
+    ).order_by("name").all()
+    emit("players", players_schema.dump(players), room=room_id)
+
     db.session.remove()
 
 
