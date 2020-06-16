@@ -51,6 +51,7 @@ def on_join(data):
 
     game = room.current_game
     cards = Card.query.filter_by(game=game).order_by("id").all()
+    emit("game", game_schema.dump(game))
     emit("cards", cards_schema.dump(cards))
 
     message = f"{player.name} has joined the room"
@@ -66,22 +67,21 @@ def on_join(data):
 
 @socketio.on("leave")
 def on_leave(data):
-    room_id = data["room"]
-    room = Room.query.get(room_id)
     player = Player.query.get(request.sid)
-    leave_room(room_id)
+    room = player.current_room
+    leave_room(room.id)
     player.current_room = None
     player.current_team = "NEUTRAL"
     db.session.commit()
 
     message = f"{player.name} has left the room"
     print(message)
-    send(message, room=room_id)
+    send(message, room=room.id)
 
     players = Player.query.filter_by(
         current_room=room, active=True
     ).order_by("name").all()
-    emit("players", players_schema.dump(players), room=room_id)
+    emit("players", players_schema.dump(players), room=room.id)
 
     db.session.remove()
 
@@ -91,7 +91,7 @@ def on_select_card(data):
     player = Player.query.get(request.sid)
     room = player.current_room
     game = room.current_game
-    card_id = data["card"]
+    card_id = data.get("card")
     card = Card.query.get(card_id)
     if not card.selected:
         card.selected = True
@@ -108,10 +108,9 @@ def on_select_card(data):
 
 
 @socketio.on("new-game")
-def on_new_game(data):
+def on_new_game():
     player = Player.query.get(request.sid)
-    room_id = data["room"]
-    room = Room.query.get(room_id)
+    room = player.current_room
     game = Game()
     db.session.add(game)
     room.current_game = game
@@ -120,9 +119,9 @@ def on_new_game(data):
     db.session.commit()
     cards = Card.query.filter_by(game=game).order_by("id").all()
     game_response = game_schema.dump(game)
-    emit("game", game_response, room=room_id)
+    emit("game", game_response, room=room.id)
     cards_response = cards_schema.dump(cards)
-    emit("cards", cards_response, room=room_id)
+    emit("cards", cards_response, room=room.id)
 
     message = f"{player.name} started a new game"
     print(message)
@@ -131,23 +130,20 @@ def on_new_game(data):
     players = Player.query.filter_by(
         current_room=room, active=True
     ).order_by("name").all()
-    emit("players", players_schema.dump(players), room=room_id)
+    emit("players", players_schema.dump(players), room=room.id)
 
     db.session.remove()
 
 
 @socketio.on("end-game")
-def on_end_game(data):
+def on_end_game():
     player = Player.query.get(request.sid)
-    room_id = data["room"]
-    room = Room.query.get(room_id)
-    game = Game()
-    db.session.add(game)
-    room.current_game = game
+    room = player.current_room
+    game = room.current_game
     game.complete = True
     db.session.commit()
     game_response = game_schema.dump(game)
-    emit("game", game_response, room=room_id)
+    emit("game", game_response, room=room.id)
 
     message = f"{player.name} ended the game"
     print(message)
@@ -159,9 +155,8 @@ def on_end_game(data):
 @socketio.on("switch-team")
 def on_switch_team(data):
     player = Player.query.get(request.sid)
-    room_id = data["room"]
-    team = data["team"]
-    room = Room.query.get(room_id)
+    room = player.current_room
+    team = data.get("team")
     player.is_spymaster = False
     player.current_team = team
     db.session.commit()
@@ -175,17 +170,16 @@ def on_switch_team(data):
     players = Player.query.filter_by(
         current_room=room, active=True
     ).order_by("name").all()
-    emit("players", players_schema.dump(players), room=room_id)
+    emit("players", players_schema.dump(players), room=room.id)
 
     db.session.remove()
 
 
-@socketio.on("switch-spymaster")
-def on_switch_spymaster(data):
+@socketio.on("toggle-spymaster")
+def on_toggle_spymaster(data):
     player = Player.query.get(request.sid)
-    room_id = data["room"]
-    room = Room.query.get(room_id)
-    player.is_spymaster = data["is_spymaster"]
+    room = player.current_room
+    player.is_spymaster = data.get("is_spymaster")
     db.session.commit()
     response = player_schema.dump(player)
     emit("player", response)
@@ -201,6 +195,6 @@ def on_switch_spymaster(data):
     players = Player.query.filter_by(
         current_room=room, active=True
     ).order_by("name").all()
-    emit("players", players_schema.dump(players), room=room_id)
+    emit("players", players_schema.dump(players), room=room.id)
 
     db.session.remove()
