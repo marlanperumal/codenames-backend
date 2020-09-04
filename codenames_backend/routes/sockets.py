@@ -26,15 +26,15 @@ def on_disconnect():
         message = f"{player.name} has left the room"
         print(message)
         send(message, room=room.id)
+        players = Player.query.filter_by(
+            current_room=room, active=True
+        ).order_by("name").all()
+        emit("players", players_schema.dump(players), room=room.id)
 
     player.current_room = None
     player.active = False
     db.session.commit()
 
-    players = Player.query.filter_by(
-        current_room=room, active=True
-    ).order_by("name").all()
-    emit("players", players_schema.dump(players), room=room.id)
     db.session.remove()
 
 
