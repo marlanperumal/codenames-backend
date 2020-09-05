@@ -20,7 +20,9 @@ def get_game_cards(id):
 
 @api.route("", methods=["POST"])
 def new_game():
-    game = Game()
+    data = request.get_json() or {}
+    game_data = game_schema.load(data)
+    game = Game(**game_data)
     db.session.add(game)
     db.session.commit()
     return game_schema.jsonify(game), 201

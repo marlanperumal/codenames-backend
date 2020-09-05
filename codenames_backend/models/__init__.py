@@ -17,8 +17,9 @@ db = SQLAlchemy(metadata=metadata)
 ma = Marshmallow()
 migrate = Migrate()
 
+from .languages import Language  # noqa: F401
+from .words import Word  # noqa: F401
 from .cards import Card  # noqa: F401
 from .games import Game  # noqa: F401
-from .words import Word  # noqa: F401
 from .rooms import Room  # noqa: F401
 from .players import Player  # noqa: F401

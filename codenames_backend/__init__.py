@@ -3,6 +3,7 @@ __version__ = "0.1.0"
 from flask import Flask
 
 from .models import db, ma, migrate
+from .routes.languages import api as languages_api
 from .routes.cards import api as cards_api
 from .routes.words import api as words_api
 from .routes.games import api as games_api
@@ -18,6 +19,7 @@ def create_app(config):
     ma.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins="*", logger=True)
+    app.register_blueprint(languages_api, url_prefix="/api/languages")
     app.register_blueprint(cards_api, url_prefix="/api/cards")
     app.register_blueprint(words_api, url_prefix="/api/words")
     app.register_blueprint(games_api, url_prefix="/api/games")

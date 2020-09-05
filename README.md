@@ -32,8 +32,14 @@ You must have these installed before running
 4. Populate the database with some words
 
     ```bash
-    poetry run python populate_tables.py
+    poetry run python load_words.py --new-langauge --language=EN data/words/words_en.txt
     ```
+
+    You can use the `load_words.py` script to load files with more words and languages. For info on how to use it, run
+
+    ```bash
+    poetry run python load_words.py --help
+    ``` 
 
 5. Run the development server
 

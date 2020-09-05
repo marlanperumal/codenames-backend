@@ -111,7 +111,7 @@ def on_select_card(data):
 def on_new_game():
     player = Player.query.get(request.sid)
     room = player.current_room
-    game = Game()
+    game = Game(language_id=room.language_id)
     db.session.add(game)
     room.current_game = game
     for other_player in room.players:

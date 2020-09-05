@@ -21,7 +21,9 @@ def get_room(id):
 
 @api.route("", methods=["POST"])
 def new_room():
-    room = Room()
+    data = request.get_json() or {}
+    room_data = room_schema.load(data)
+    room = Room(**room_data)
     db.session.add(room)
     db.session.commit()
     return room_schema.jsonify(room), 201
